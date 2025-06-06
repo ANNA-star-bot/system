@@ -1,0 +1,28 @@
+{
+  "name": "smart-traffic-system",
+  "version": "1.0.0",
+  "description": "AI智能交通信号优化系统",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",          // 生产环境启动命令
+    "dev": "python app.py",           // 开发环境启动命令（可根据需要添加调试工具）
+    "build": "echo \"No build process for this project\"",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "flask",
+    "smart-traffic",
+    "traffic-optimization"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "flask": "^2.3.3",               // Flask 框架（后端核心依赖）
+    "flask-cors": "^4.0.0",          // 跨域资源共享支持
+    "python-dotenv": "^1.0.0"        // 环境变量管理（可选，用于配置端口等）
+  },
+  "devDependencies": {
+    // 开发环境可选依赖（如调试工具、热重载等）
+    "python-dotenv": "^1.0.0"        // 开发和生产环境均可使用，此处重复列出仅为示例
+  }
+}
