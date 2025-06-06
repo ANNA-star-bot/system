@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI智能交通信号优化系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .shadow-card {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-dark min-h-screen flex flex-col">
+
+  <main class="pt-20 pb-10 px-6 space-y-10">
+    <section class="bg-white p-6 rounded-xl shadow-card">
+      <h2 class="text-lg font-semibold mb-2">AI 决策解释</h2>
+      <p class="text-sm text-gray-700 leading-relaxed">
+        当前所选路口 <span class="font-medium" id="intersectionName">加载中...</span>，系统识别当前流量：
+        <strong id="currentFlow">加载中...</strong>，大型车辆比例为 <strong id="truckRate">加载中...</strong>，
+        建议方案：<span id="actionPlan" class="text-green-600">加载中...</span>
+      </p>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow-card">
+      <h2 class="text-lg font-semibold mb-2">车辆类型分布</h2>
+      <canvas id="vehicleTypeChart" height="300"></canvas>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow-card">
+      <h2 class="text-lg font-semibold mb-4">太原市路口分布图</h2>
+      <div id="trafficMap" class="w-full h-[400px] rounded-lg"></div>
+    </section>
+  </main>
+
+  <script>
+    // 从 Flask 获取路口决策信息
+    fetch('https://smart-traffic-backend.onrender.com/api/intersections')
+      .then(res => res.json())
+      .then(data => {
+        const intersection = data[0];
+        document.getElementById('intersectionName').innerText = intersection.name;
+        document.getElementById('currentFlow').innerText = intersection.flow + '辆/小时';
+        document.getElementById('truckRate').innerText = (intersection.truck_rate * 100).toFixed(0) + '%';
+        document.getElementById('actionPlan').innerText = intersection.suggestion;
+      });
+
+    // 获取车辆类型统计数据
+    fetch('https://smart-traffic-backend.onrender.com/api/vehicle_types')
+      .then(res => res.json())
+      .then(json => {
+        new Chart(document.getElementById('vehicleTypeChart'), {
+          type: 'bar',
+          data: {
+            labels: json.labels,
+            datasets: [{
+              label: '车辆类型分布（单位：辆）',
+              data: json.data,
+              backgroundColor: ['#165DFF', '#36CFC9', '#FF7D00', '#86909C'],
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' },
+              title: { display: false }
+            }
+          }
+        });
+      });
+
+    // 初始化地图
+    const map = L.map('trafficMap').setView([37.8716, 112.5624], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+  </script>
+</body>
+</html>
